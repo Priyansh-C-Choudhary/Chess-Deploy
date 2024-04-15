@@ -46,10 +46,18 @@ jobs:
       - name: Pull Docker Image
         run: docker pull priyanshcchoudhary/chess-game:2024-04-15-10
 
-      - name: Fetch Kubernetes API server URL
+      - name: Configure Kubernetes credentials
+        uses: Azure/k8s-set-context@v1
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Fetch available contexts
+        run: kubectl config get-contexts
+
+      - name: Set Kubernetes context
         run: |
-          KUBE_URL=$(kubectl config view --minify -o jsonpath='{.clusters[].cluster.server}')
-          echo "::set-env name=KUBE_URL::$KUBE_URL"
+          CONTEXT=$(kubectl config get-contexts | grep '*' | awk '{print $1}')
+          kubectl config use-context $CONTEXT
 
       - name: Deploy to EKS cluster
         run: |
