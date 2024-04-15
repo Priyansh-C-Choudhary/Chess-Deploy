@@ -25,6 +25,7 @@ jobs:
         run: |
           aws cloudformation describe-stacks --stack-name MyChessResources >/dev/null 2>&1 || echo "::set-output name=stack-exists::false"
           echo "::set-output name=stack-exists::true"
+
       - name: Provision or update AWS resources
         if: steps.check-stack.outputs.stack-exists == 'false'
         run: aws cloudformation create-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
@@ -47,6 +48,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: kubeconfig
+          path: .
 
       - name: Configure kubectl
         run: |
