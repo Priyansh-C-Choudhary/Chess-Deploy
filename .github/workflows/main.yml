@@ -26,10 +26,12 @@ jobs:
           echo "::set-output name=stack-exists::true"
 
       - name: Provision or update AWS resources
-        if: steps.check-stack.outputs.stack-exists == 'false'
-        run: aws cloudformation create-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
-        else
-        run: aws cloudformation update-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
+        run: |
+          if [ "${{ steps.check-stack.outputs.stack-exists }}" == "true" ]; then
+            aws cloudformation update-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
+          else
+            aws cloudformation create-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
+          fi
 
   destroy-resources:
     if: github.event_name == 'workflow_dispatch'
