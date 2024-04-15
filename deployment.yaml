@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: chess-web-container
-        image: priyanshcchoudhary/chess-game:latest
+        image: priyanshcchoudhary/chess-game:2024-04-15-10
         ports:
         - containerPort: 3000
