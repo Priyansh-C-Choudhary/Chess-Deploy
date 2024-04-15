@@ -36,8 +36,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Pull Docker image
-        run: docker pull priyanshcchoudhary/chess-game:latest
+      - name: Pull Docker Image
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/chess-game:latest
+
 
       - name: Deploy to EKS cluster
         run: kubectl apply -f deployment.yaml && kubectl apply -f cluter.yaml && kubectl apply -f service.yaml
