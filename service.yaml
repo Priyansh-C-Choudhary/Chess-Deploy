@@ -1,12 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: chess-web-service  # Updated service name for clarity
+  name: chess-web-service
+  labels:
+    app: chess-web
 spec:
+  type: NodePort
   selector:
-    app: chess-web  # Match the labels of your deployment pods
+    app: chess-web
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer
+    - nodePort: 31479
+      port: 8080
+      targetPort: 3000
