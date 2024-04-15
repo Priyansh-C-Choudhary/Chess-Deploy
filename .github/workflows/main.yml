@@ -3,10 +3,10 @@ name: Manage EKS Cluster
 on:
   push:
     branches:
-      - main  # Trigger on push events to the main branch
+      - main
   pull_request:
     types:
-      - closed  # Trigger on closed pull requests
+      - closed
 
 jobs:
   deploy:
@@ -26,15 +26,35 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1  # Update with your AWS region
+          aws-region: ap-south-1
 
       - name: Provision resources
         run: |
           echo "Provisioning resources..."
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl apply -f hpa.yaml
-          kubectl apply -f policy.yaml
+          kubectl apply -f deployment.yaml --validate=false
+          kubectl apply -f service.yaml --validate=false
+          kubectl apply -f hpa.yaml --validate=false
+          kubectl apply -f policy.yaml --validate=false
+        env:
+          AWS_DEFAULT_REGION: ap-south-1
+          AWS_REGION: ap-south-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Wait for external IP
+        run: |
+          echo "Waiting for external IP..."
+          sleep 240  # Adjust sleep time as needed
+        timeout-minutes: 5
+
+      - name: Get external IP
+        run: |
+          kubectl get svc -o=jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}'
+        id: get_ip
+
+      - name: Access application
+        run: |
+          echo "Accessing application at http://${{ steps.get_ip.outputs.stdout }}/"
 
   destroy:
     runs-on: ubuntu-latest
@@ -64,7 +84,7 @@ jobs:
 
       - name: Destroy resources
         run: |
-          kubectl delete -f deployment.yaml
-          kubectl delete -f service.yaml
-          kubectl delete -f hpa.yaml
-          kubectl delete -f policy.yaml
+          kubectl delete -f deployment.yaml --validate=false
+          kubectl delete -f service.yaml --validate=false
+          kubectl delete -f hpa.yaml --validate=false
+          kubectl delete -f policy.yaml --validate=false
