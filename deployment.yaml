@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chess-web-deployment  # Updated deployment name for consistency
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: chess-web
+  template:
+    metadata:
+      labels:
+        app: chess-web
+    spec:
+      containers:
+        - name: chess-app-container  # Updated container name for clarity
+          image: priyanshcchoudhary/chess-game:latest
+          ports:
+            - containerPort: 80

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chess-web-service  # Updated service name for clarity
+spec:
+  selector:
+    app: chess-web  # Match the labels of your deployment pods
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
