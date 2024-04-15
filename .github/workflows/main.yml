@@ -28,6 +28,8 @@ jobs:
       - name: Provision or update AWS resources
         if: steps.check-stack.outputs.stack-exists == 'false'
         run: aws cloudformation create-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
+        else
+          run: aws cloudformation update-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
 
   deploy-container:
     runs-on: ubuntu-latest
@@ -35,6 +37,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
 
       - name: Configure Docker
         uses: docker/login-action@v2
@@ -46,11 +55,16 @@ jobs:
       - name: Pull Docker Image
         run: docker pull priyanshcchoudhary/chess-game:2024-04-15-10
 
+      - name: Fetch Kubernetes API server URL
+        run: |
+          KUBE_URL=$(kubectl config view --minify -o jsonpath='{.clusters[].cluster.server}')
+          echo "::set-env name=KUBE_URL::$KUBE_URL"
+
       - name: Deploy to EKS cluster
         run: |
-          kubectl apply -f deployment.yaml --validate=false
-          kubectl apply -f cluster.yaml --validate=false
-          kubectl apply -f service.yaml --validate=false
+          kubectl apply -f deployment.yaml --validate=false --kubeconfig="${{ secrets.KUBE_CONFIG }}"
+          kubectl apply -f cluster.yaml --validate=false --kubeconfig="${{ secrets.KUBE_CONFIG }}"
+          kubectl apply -f service.yaml --validate=false --kubeconfig="${{ secrets.KUBE_CONFIG }}"
 
   destroy-resources:
     if: github.event_name == 'workflow_dispatch'
