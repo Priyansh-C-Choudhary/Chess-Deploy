@@ -47,23 +47,15 @@ jobs:
         run: docker pull priyanshcchoudhary/chess-game:2024-04-15-10
 
       - name: Configure Kubernetes credentials
-        uses: Azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-      - name: Fetch available contexts
-        run: kubectl config get-contexts
-
-      - name: Set Kubernetes context
         run: |
-          CONTEXT=$(kubectl config get-contexts | grep '*' | awk '{print $1}')
-          kubectl config use-context $CONTEXT
+          echo ${{ secrets.KUBE_CONFIG }} | base64 -d > kubeconfig.yaml
+          kubectl config --kubeconfig=kubeconfig.yaml use-context <your-context-name>
 
       - name: Deploy to EKS cluster
         run: |
-          kubectl apply -f deployment.yaml --validate=false --kubeconfig="${{ secrets.KUBE_CONFIG }}"
-          kubectl apply -f cluster.yaml --validate=false --kubeconfig="${{ secrets.KUBE_CONFIG }}"
-          kubectl apply -f service.yaml --validate=false --kubeconfig="${{ secrets.KUBE_CONFIG }}"
+          kubectl apply -f deployment.yaml --validate=false --kubeconfig=kubeconfig.yaml
+          kubectl apply -f cluster.yaml --validate=false --kubeconfig=kubeconfig.yaml
+          kubectl apply -f service.yaml --validate=false --kubeconfig=kubeconfig.yaml
 
   destroy-resources:
     if: github.event_name == 'workflow_dispatch'
