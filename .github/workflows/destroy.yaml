@@ -1,0 +1,33 @@
+name: Delete EKS Cluster
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Confirm deletion of AWS EKS cluster'
+        required: true
+        default: 'false'
+
+jobs:
+  destroy-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Manual confirmation step
+        if: github.event.inputs.confirmation == 'true'
+        run: |
+          echo "Destroying resources requires manual confirmation."
+          echo "Please confirm by running this job with 'confirmation: true' in the GitHub Actions UI."
+
+      - name: Destroy AWS resources
+        if: github.event.inputs.confirmation == 'true'
+        run: aws cloudformation delete-stack --stack-name MyChessResources
