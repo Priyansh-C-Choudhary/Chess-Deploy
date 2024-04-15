@@ -1,0 +1,52 @@
+name: Deploy to EKS
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push events to the main branch
+  pull_request:
+    types:
+      - closed  # Trigger on closed pull requests
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'latest'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Update with your AWS region
+
+      - name: Manual approval
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = await github.actions.createApprovalRequest({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: 'Approve deployment to EKS'
+            });
+            console.log(response.data);
+
+      - name: Deploy to EKS
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true) && github.event.action == 'approved'
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
+          kubectl apply -f hpa.yaml
+          kubectl apply -f network-policy.yaml
