@@ -44,7 +44,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
   
       - name: Pull Docker Image
-        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/chess-game:latest
+        run: docker pull priyanshcchoudhary/chess-game:latest
   
       - name: Deploy to EKS cluster
         run: |
