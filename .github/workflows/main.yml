@@ -1,90 +1,61 @@
-name: Manage EKS Cluster
+name: Deploy Chess Game
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    types:
-      - closed
 
 jobs:
-  deploy:
+  provision-resources:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'latest'
-
-      - name: Configure AWS credentials
+      - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: us-east-2
 
-      - name: Provision resources
-        run: |
-          echo "Provisioning resources..."
-          kubectl apply -f deployment.yaml --validate=false
-          kubectl apply -f service.yaml --validate=false
-          kubectl apply -f hpa.yaml --validate=false
-          kubectl apply -f policy.yaml --validate=false
-        env:
-          AWS_DEFAULT_REGION: ap-south-1
-          AWS_REGION: ap-south-1
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Provision AWS resources
+        run: aws cloudformation create-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
 
-      - name: Wait for external IP
-        run: |
-          echo "Waiting for external IP..."
-          sleep 240  # Adjust sleep time as needed
-        timeout-minutes: 5
-
-      - name: Get external IP
-        run: |
-          kubectl get svc -o=jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}'
-        id: get_ip
-
-      - name: Access application
-        run: |
-          echo "Accessing application at http://${{ steps.get_ip.outputs.stdout }}/"
-
-  destroy:
+  deploy-container:
     runs-on: ubuntu-latest
-
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
-
+    needs: provision-resources
     steps:
-      - name: Manual approval for destruction
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const response = await github.actions.createApprovalRequest({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              event: 'APPROVE',
-              body: 'Approve destruction of resources'
-            });
-            console.log(response.data);
-            echo "Destruction of resources approved, proceeding..."
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Set up kubectl for destruction
-        uses: azure/setup-kubectl@v1
+      - name: Configure Docker
+        uses: docker/login-action@v2
         with:
-          version: 'latest'
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Destroy resources
-        run: |
-          kubectl delete -f deployment.yaml --validate=false
-          kubectl delete -f service.yaml --validate=false
-          kubectl delete -f hpa.yaml --validate=false
-          kubectl delete -f policy.yaml --validate=false
+      - name: Pull Docker image
+        run: docker pull priyanshcchoudhary/chess-game:latest
+
+      - name: Deploy to EKS cluster
+        run: kubectl apply -f deployment.yaml && kubectl apply -f cluter.yaml && kubectl apply -f service.yaml
+
+  destroy-resources:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: deploy-container
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Destroy AWS resources
+        run: aws cloudformation delete-stack --stack-name MyChessResources
