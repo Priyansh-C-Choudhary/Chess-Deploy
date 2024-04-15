@@ -19,8 +19,20 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      - name: Provision AWS resources
+      - name: Check if stack exists
+        id: check-stack
+        run: |
+          if aws cloudformation describe-stacks --stack-name MyChessResources >/dev/null 2>&1; then
+            echo "::set-output name=stack-exists::true"
+          else
+            echo "::set-output name=stack-exists::false"
+          fi
+
+      - name: Provision or update AWS resources
+        if: steps.check-stack.outputs.stack-exists == 'false'
         run: aws cloudformation create-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
+        else
+        run: aws cloudformation update-stack --stack-name MyChessResources --template-body file://trial-deployment.yaml
 
   deploy-container:
     runs-on: ubuntu-latest
@@ -39,9 +51,8 @@ jobs:
       - name: Pull Docker Image
         run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/chess-game:latest
 
-
       - name: Deploy to EKS cluster
-        run: kubectl apply -f deployment.yaml && kubectl apply -f cluter.yaml && kubectl apply -f service.yaml
+        run: kubectl apply -f deployment.yaml && kubectl apply -f cluster.yaml && kubectl apply -f service.yaml
 
   destroy-resources:
     if: github.event_name == 'workflow_dispatch'
