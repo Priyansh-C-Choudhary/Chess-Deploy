@@ -1,4 +1,4 @@
-name: Deploy Chess Game
+name: Deploy 2Player Chess Game
 
 on:
   push:
