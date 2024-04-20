@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template for provisioning networking resources and an EKS Cluster
+Description: CloudFormation template for provisioning networking resources and an EKS Cluster (Exposing port 3000 - NOT RECOMMENDED FOR PRODUCTION)
 
 Parameters:
   VpcCIDR:
@@ -23,7 +23,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: "10.0.1.0/24"
-      AvailabilityZone: !Select [ 0, !GetAZs ap-south-1 ]
+      AvailabilityZone: !Select [0, !GetAZs ap-south-1]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -34,7 +34,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: "10.0.2.0/24"
-      AvailabilityZone: !Select [ 1, !GetAZs ap-south-1 ]
+      AvailabilityZone: !Select [1, !GetAZs ap-south-1]
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
@@ -47,9 +47,9 @@ Resources:
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 3000  # Expose port 3000
-          ToPort: 3000    # Expose port 3000
-          CidrIp: 0.0.0.0/0
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0  # Exposing port 3000 to everyone (NOT RECOMMENDED)
       Tags:
         - Key: Name
           Value: EKS-SecurityGroup
@@ -95,7 +95,7 @@ Resources:
           - !GetAtt SecurityGroup.GroupId
 
   EKSNodeGroup:
-    Type: AWS::EKS::Nodegroup
+    Type: AWS::EKSCluster::Nodegroup
     Properties:
       ClusterName: !Ref MyEKSCluster
       NodegroupName: MyNodeGroup
@@ -108,7 +108,7 @@ Resources:
         MinSize: 2  # Minimum number of nodes
         DesiredSize: 2  # Desired number of nodes
         MaxSize: 5  # Maximum number of nodes
-      NodeRole: !GetAtt EKSIAMRole.Arn  # IAM role for the nodes
+      NodeRole: !GetAtt EKSIAMRole.Arn  # IAM role
 
 Outputs:
   VPCId:
