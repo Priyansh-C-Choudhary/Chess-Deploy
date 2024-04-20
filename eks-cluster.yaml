@@ -23,7 +23,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: "10.0.1.0/24"
-      AvailabilityZone: !Select [ 0, !GetAZs "" ]
+      AvailabilityZone: !Select [ 0, !GetAZs ap-south-1 ]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
@@ -34,7 +34,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: "10.0.2.0/24"
-      AvailabilityZone: !Select [ 0, !GetAZs "" ]
+      AvailabilityZone: !Select [ 1, !GetAZs ap-south-1 ]
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
@@ -99,6 +99,7 @@ Resources:
       NodegroupName: MyNodeGroup
       Subnets:
         - !Ref PublicSubnet1
+        - !Ref PrivateSubnet1
       InstanceTypes:
         - t3.medium  # Instance type for worker nodes
       ScalingConfig:
