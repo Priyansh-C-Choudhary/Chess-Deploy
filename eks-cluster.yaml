@@ -54,31 +54,33 @@ Resources:
         - Key: Name
           Value: EKS-SecurityGroup
 
-  EKSIAMRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ec2.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: EKSNodePolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ec2:DescribeInstances"
-                  - "ec2:DescribeTags"
-                  - "ec2:DescribeRouteTables"
-                  - "ec2:DescribeSecurityGroups"
-                  - "ec2:DescribeSubnets"
-                  - "ec2:DescribeVolumes"
-                  - "ec2:DescribeVpcs"
-                Resource: "*"
+EKSIAMRole:
+  Type: AWS::IAM::Role
+  Properties:
+    AssumeRolePolicyDocument:
+      Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - ec2.amazonaws.com
+              - eks.amazonaws.com  # Add eks.amazonaws.com to the list of services
+          Action: sts:AssumeRole
+    Policies:
+      - PolicyName: EKSNodePolicy
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "ec2:DescribeInstances"
+                - "ec2:DescribeTags"
+                - "ec2:DescribeRouteTables"
+                - "ec2:DescribeSecurityGroups"
+                - "ec2:DescribeSubnets"
+                - "ec2:DescribeVolumes"
+                - "ec2:DescribeVpcs"
+              Resource: "*"
 
   MyEKSCluster:
       Type: AWS::EKS::Cluster
