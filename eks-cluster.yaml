@@ -95,7 +95,7 @@ Resources:
           - !GetAtt SecurityGroup.GroupId
 
   EKSNodeGroup:
-    Type: AWS::EKSCluster::Nodegroup
+    Type: AWS::EKS::Nodegroup
     Properties:
       ClusterName: !Ref MyEKSCluster
       NodegroupName: MyNodeGroup
