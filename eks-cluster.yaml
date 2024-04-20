@@ -80,6 +80,18 @@ Resources:
                   - "ec2:DescribeVpcs"
                 Resource: "*"
 
+  MyEKSCluster:
+      Type: AWS::EKS::Cluster
+      Properties:
+        Name: chesscluster
+        RoleArn: !GetAtt EKSIAMRole.Arn
+        ResourcesVpcConfig:
+          SubnetIds:
+            - !Ref PublicSubnet1
+            - !Ref PrivateSubnet1
+          SecurityGroupIds:
+            - !GetAtt SecurityGroup.GroupId
+
   EKSNodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
