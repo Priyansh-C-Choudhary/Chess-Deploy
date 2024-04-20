@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template for provisioning networking resources and an EKS cluster
+Description: CloudFormation template for provisioning networking resources and an EKS Cluster
 
 Parameters:
   VpcCIDR:
