@@ -1,4 +1,4 @@
-name: Deploy to EKS with HPA
+name: Provision EKS
 
 on:
   push:
