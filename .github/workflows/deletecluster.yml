@@ -22,4 +22,4 @@ jobs:
     - name: Delete EKS Cluster
       run: |
         aws cloudformation delete-stack \
-          --stack-name chesswebstack
+          --stack-name chesswebapp
