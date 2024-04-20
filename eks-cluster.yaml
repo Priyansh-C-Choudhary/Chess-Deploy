@@ -106,6 +106,7 @@ Resources:
         MinSize: 2  # Minimum number of nodes
         DesiredSize: 2  # Desired number of nodes
         MaxSize: 5  # Maximum number of nodes
+      NodeRole: !GetAtt EKSIAMRole.Arn  # IAM role for the nodes
 
 Outputs:
   VPCId:
