@@ -44,5 +44,5 @@ jobs:
       run: |
         aws cloudformation deploy \
           --template-file eks-vpc-stack.yaml \
-          --stack-name chesscluster \
-          --capabilities CAPABILITY_IAM
+          --stack-name my-eks-vpc \
+          --capabilities CAPABILITY_NAMED_IAM
