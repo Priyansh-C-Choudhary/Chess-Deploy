@@ -128,6 +128,8 @@ Resources:
                   - "ec2:CreateNatGateway"
                   - "ec2:DeleteNatGateway"
                   - "ec2:ModifyNatGateway"
+                  - "eks:DescribeCluster"
+                  - "eks:ListNodegroups"
                 Resource: "*"
 
   MyEKSCluster:
