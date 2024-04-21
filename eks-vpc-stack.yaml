@@ -278,25 +278,25 @@ Outputs:
     Description: Public Subnet 1 ID in the VPC
     Value: !Ref PublicSubnet01
     Export:
-      Name: PublicSubnet01
+      Name: PublicSubnetId1
 
   PublicSubnetId2:
     Description: Public Subnet 2 ID in the VPC
     Value: !Ref PublicSubnet02
     Export:
-      Name: PublicSubnet02
+      Name: PublicSubnetId2
   
   PrivateSubnetId1:
     Description: Private Subnet 1 ID in the VPC
     Value: !Ref PrivateSubnet01
     Export:
-      Name: PrivateSubnet01
+      Name: PrivateSubnetId1
   
   PrivateSubnetId2:
     Description: Private Subnet 2 ID in the VPC
     Value: !Ref PrivateSubnet02
     Export:
-      Name: PrivateSubnet02
+      Name: PrivateSubnetId2
 
   ControlPlaneSecurityGroupId:
     Description: Security group for the cluster control plane communication with worker nodes
