@@ -99,8 +99,7 @@ Resources:
       Subnets:
         - !Ref PublicSubnet1
       InstanceTypes:
-        - t3.medium  # Instance type for worker nodes
-      PublicIpAssignment: ENABLED  # Assign public IPs to nodes
+        - t3.medium  # Instance type for worker nodess
       ScalingConfig:
         MinSize: 1  # Minimum number of nodes
         DesiredSize: 1  # Desired number of nodes
