@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chess-app-deployment
+  labels:
+    app: chess-web-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chess-web-app
+  template:
+    metadata:
+      labels:
+        app: chess-web-app 
+    spec:
+      containers:
+      - name: chesswebapp
+        image: 241367251936.dkr.ecr.ap-south-1.amazonaws.com/chesswebapp:latest
+        ports:
+        - containerPort: 3000
