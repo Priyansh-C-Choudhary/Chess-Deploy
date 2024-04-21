@@ -4,7 +4,7 @@ Description: 'Amazon EKS Cluster'
 Parameters:
   ClusterName:
     Type: String
-    Default: my-eks-cluster
+    Default: my-chess-cluster
   NumberOfWorkerNodes:
     Type: Number
     Default: 3
