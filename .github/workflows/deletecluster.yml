@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Delet-EKS-Cluster:
+  Delete-EKS-Cluster:
     runs-on: ubuntu-latest
 
     steps:
