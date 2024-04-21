@@ -22,6 +22,6 @@ jobs:
       run: |
         aws cloudformation create-stack \
           --region ap-south-1 \
-          --stack-name chessekscluster \
+          --stack-name my-eks-cluster \
           --capabilities CAPABILITY_NAMED_IAM \
           --template-body file://eks-stack.yaml
