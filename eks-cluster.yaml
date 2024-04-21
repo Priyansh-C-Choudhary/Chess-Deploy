@@ -95,9 +95,18 @@ Resources:
           FromPort: 3000  # Expose port 3000
           ToPort: 3000    # Expose port 3000
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443  # HTTPS (TCP port 443)
+          ToPort: 443    # HTTPS (TCP port 443)
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 10250  # Kubelet (TCP port 10250)
+          ToPort: 10250    # Kubelet (TCP port 10250)
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: EKS-SecurityGroup
+
 
   EKSIAMRole:
     Type: AWS::IAM::Role
