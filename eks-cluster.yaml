@@ -29,62 +29,6 @@ Resources:
         - Key: Name
           Value: PublicSubnet1
 
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: "10.0.2.0/24"
-      AvailabilityZone: !Select [ 1, !GetAZs ap-south-1 ]
-      MapPublicIpOnLaunch: false
-      Tags:
-        - Key: Name
-          Value: PrivateSubnet1
-
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: MyEKS-IGW
-
-  AttachGateway:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway
-
-  NatGatewayEIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-
-  NatGateway:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt NatGatewayEIP.AllocationId
-      SubnetId: !Ref PublicSubnet1
-
-  PrivateRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: PrivateRouteTable
-
-  PrivateRoute:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable
-      DestinationCidrBlock: "0.0.0.0/0"
-      NatGatewayId: !Ref NatGateway
-
-  RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PrivateSubnet1
-      RouteTableId: !Ref PrivateRouteTable
-
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -107,7 +51,6 @@ Resources:
         - Key: Name
           Value: EKS-SecurityGroup
 
-
   EKSIAMRole:
     Type: AWS::IAM::Role
     Properties:
@@ -118,7 +61,7 @@ Resources:
             Principal:
               Service:
                 - ec2.amazonaws.com
-                - eks.amazonaws.com  # Add eks.amazonaws.com to the list of services
+                - eks.amazonaws.com
             Action: sts:AssumeRole
       Policies:
         - PolicyName: EKSNodePolicy
@@ -134,9 +77,6 @@ Resources:
                   - "ec2:DescribeSubnets"
                   - "ec2:DescribeVolumes"
                   - "ec2:DescribeVpcs"
-                  - "ec2:CreateNatGateway"
-                  - "ec2:DeleteNatGateway"
-                  - "ec2:ModifyNatGateway"
                   - "eks:DescribeCluster"
                   - "eks:ListNodegroups"
                 Resource: "*"
@@ -149,7 +89,6 @@ Resources:
       ResourcesVpcConfig:
         SubnetIds:
           - !Ref PublicSubnet1
-          - !Ref PrivateSubnet1
         SecurityGroupIds:
           - !GetAtt SecurityGroup.GroupId
 
@@ -160,13 +99,13 @@ Resources:
       NodegroupName: MyNodeGroup
       Subnets:
         - !Ref PublicSubnet1
-        - !Ref PrivateSubnet1
       InstanceTypes:
         - t3.medium  # Instance type for worker nodes
+      PublicIpAssignment: ENABLED  # Assign public IPs to nodes
       ScalingConfig:
-        MinSize: 2  # Minimum number of nodes
-        DesiredSize: 2  # Desired number of nodes
-        MaxSize: 5  # Maximum number of nodes
+        MinSize: 1  # Minimum number of nodes
+        DesiredSize: 1  # Desired number of nodes
+        MaxSize: 3  # Maximum number of nodes
       NodeRole: !GetAtt EKSIAMRole.Arn  # IAM role for the nodes
 
 Outputs:
@@ -176,9 +115,6 @@ Outputs:
   PublicSubnetId1:
     Description: Public Subnet ID 1
     Value: !Ref PublicSubnet1
-  PrivateSubnetId1:
-    Description: Private Subnet ID 1
-    Value: !Ref PrivateSubnet1
   SecurityGroupId:
     Description: Security Group ID
     Value: !GetAtt SecurityGroup.GroupId
