@@ -67,29 +67,19 @@ Resources:
         - Key: Name
           Value: PrivateRouteTable
 
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: PublicRouteTable
-
   PrivateRoute:
     Type: AWS::EC2::Route
-    DependsOn: AttachGateway
+    DependsOn: NatGateway
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       DestinationCidrBlock: "0.0.0.0/0"
       NatGatewayId: !Ref NatGateway
 
-  PublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn: AttachGateway
+  RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref InternetGateway
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable
 
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
