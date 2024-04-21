@@ -1,13 +1,14 @@
-name: Deploy Chess Web App
+name: Configure-Kubectl-and-Apply-Deployment
 
 on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  Configure-Kubectl-and-Apply-Deployment:
     runs-on: ubuntu-latest
-
+  
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -18,18 +19,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: Fetch kubeconfig
+      - name: Install kubectl
         run: |
-          mkdir -p ~/.kube
-          bash get-kubeconfig.sh
-          cp ~/.kube/config $HOME/.kube/config
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-      - name: Configure kubectl
+      - name: Configure kubeconfig
         run: |
-          kubectl version
-          kubectl get pods
+          aws eks --region ap-south-1 update-kubeconfig --name my-eks-cluster
 
-      - name: Deploy Chess Web App
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Apply Kubernetes Deployment
         run: |
           kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
