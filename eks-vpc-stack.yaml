@@ -273,9 +273,9 @@ Resources:
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 3000
-          ToPort: 3000
-          CidrIp: 0.0.0.0/0  # Allow all IPs to access port 3000
+          FromPort: 31000
+          ToPort: 31000
+          CidrIp: 0.0.0.0/0  # Allow all IPs to access port 31000
 
 Outputs:
 
