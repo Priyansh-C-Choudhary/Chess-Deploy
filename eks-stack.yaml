@@ -13,7 +13,7 @@ Parameters:
     Default: t3.medium
   KubernetesVersion:
     Type: String
-    Default: 1.22
+    Default: 1.29
 
 Resources:
 
