@@ -1,3 +1,2 @@
-# Chess-Game
-Chess Game with a DevOps Touch
-Nahi Hoo Raha Bhai
+# Chess-Deploy
+Chess with a DevOps Touch
