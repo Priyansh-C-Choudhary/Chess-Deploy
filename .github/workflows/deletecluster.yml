@@ -1,4 +1,4 @@
-name: Delete EKS Cluster
+name: Delete-EKS-Cluster
 
 on:
   workflow_dispatch:
@@ -19,8 +19,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-south-1
 
-    - name: Delete EKS Cluster
+    - name: Delete EKS Cluster and VPC
       run: |
-        aws cloudformation delete-stack \
-          --stack-name my-eks-cluster \
-          --stack-name my-eks-vpc \
+        aws cloudformation delete-stack --stack-name my-eks-cluster my-eks-vpc
