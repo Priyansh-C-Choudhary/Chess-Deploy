@@ -20,7 +20,8 @@ jobs:
 
     - name: Provision EKS Cluster
       run: |
-        aws cloudformation deploy \
-          --template-file eks-vpc-stack.yaml \
-          --stack-name chesscluster \
+        aws cloudformation create-stack \
+          --region ap-south-1 \
+          --stack-name chessekscluster \
           --capabilities CAPABILITY_IAM
+          --template-file eks-cluster.yaml \
