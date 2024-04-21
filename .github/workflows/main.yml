@@ -73,6 +73,7 @@ jobs:
 
   Configure-Kubectl-and-Apply-Deployment:
     runs-on: ubuntu-latest
+    needs: [Provision-EKS]
   
     steps:
 
