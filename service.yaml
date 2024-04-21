@@ -9,6 +9,6 @@ spec:
   selector:
     app: chess-web-app
   ports:
-    - nodePort: 31479
+    - nodePort: 3000
       port: 8080
       targetPort: 3000
