@@ -1,0 +1,28 @@
+name: Deploy Chess Web App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Fetch kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          bash get-kubeconfig.sh
+          cp ~/.kube/config $HOME/.kube/config
+
+      - name: Configure kubectl
+        run: |
+          kubectl version
+          kubectl get pods
+
+      - name: Deploy Chess Web App
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
