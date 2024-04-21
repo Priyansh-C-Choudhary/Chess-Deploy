@@ -24,4 +24,4 @@ jobs:
           --region ap-south-1 \
           --stack-name chessekscluster \
           --capabilities CAPABILITY_NAMED_IAM \
-          --template-body file://eks-cluster.yaml
+          --template-body file://eks-stack.yaml
