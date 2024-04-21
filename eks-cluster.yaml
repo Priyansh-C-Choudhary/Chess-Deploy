@@ -70,8 +70,8 @@ Resources:
         SecurityGroupIds:
           - !ImportValue ControlPlaneSecurityGroupId
         SubnetIds: 
-          - !Split [ ',', !ImportValue PublicSubnetIds ]
-          - !Split [ ',', !ImportValue PrivateSubnetIds ]
+          - !Join [ ",", !ImportValue PublicSubnetIds ]
+          - !Join [ ",", !ImportValue PrivateSubnetIds ]
 
 
   EksNodegroupPublic:
